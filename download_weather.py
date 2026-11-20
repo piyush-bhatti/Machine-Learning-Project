@@ -32,24 +32,24 @@ POINTS = {
     "West-Flanders": (51.00, 3.05),
 }
 
-VARIABLES = {   # Open-Meteo name -> column name in the parquet file
-    "shortwave_radiation": "ghi_wm2",              # global horizontal irradiance
-    "direct_radiation": "direct_wm2",              # direct, on a horizontal plane
-    "diffuse_radiation": "diffuse_wm2",
-    "direct_normal_irradiance": "dni_wm2",
-    "cloud_cover": "cloud_total_pct",
-    "cloud_cover_low": "cloud_low_pct",
-    "cloud_cover_mid": "cloud_mid_pct",
-    "cloud_cover_high": "cloud_high_pct",
-    "temperature_2m": "temp_c",
-    "dew_point_2m": "dew_point_c",
-    "relative_humidity_2m": "humidity_pct",
-    "surface_pressure": "pressure_hpa",
-    "precipitation": "precip_mm",
-    "wind_speed_10m": "wind_kmh",
-    "wind_gusts_10m": "wind_gust_kmh",
-    "wind_direction_10m": "wind_dir_deg",
-}
+VARIABLES = [   # Open-Meteo hourly variables. Column names in the parquet file are these names, unchanged
+    "shortwave_radiation",        # global horizontal irradiance, W/m2
+    "direct_radiation",           # direct, on a horizontal plane, W/m2
+    "diffuse_radiation",          # W/m2
+    "direct_normal_irradiance",   # W/m2
+    "cloud_cover",                # total, %
+    "cloud_cover_low",
+    "cloud_cover_mid",
+    "cloud_cover_high",
+    "temperature_2m",             # deg C
+    "dew_point_2m",               # deg C
+    "relative_humidity_2m",       # %
+    "surface_pressure",           # hPa
+    "precipitation",              # mm
+    "wind_speed_10m",             # km/h
+    "wind_gusts_10m",             # km/h
+    "wind_direction_10m",         # degrees
+]
 
 
 def fetch(region, lat, lon, start, end):
@@ -69,11 +69,11 @@ def fetch(region, lat, lon, start, end):
     if r is None or r.status_code != 200:
         raise RuntimeError(f"could not download {region} {start} to {end}")
     js = r.json()
-    df = pd.DataFrame(js["hourly"]).rename(columns=VARIABLES)
-    df["datetime_utc"] = pd.to_datetime(df.pop("time"), utc=True)
-    df.insert(0, "region", region)
+    df = pd.DataFrame(js["hourly"])                      # columns: time + the variables, as named by Open-Meteo
+    df["time"] = pd.to_datetime(df["time"], utc=True)
+    df.insert(1, "region", region)                       # added: which Elia area this point belongs to
     df["latitude"], df["longitude"] = js["latitude"], js["longitude"]
-    return df[["datetime_utc", "region", "latitude", "longitude", *VARIABLES.values()]]
+    return df[["time", "region", "latitude", "longitude", *VARIABLES]]
 
 
 def main():
@@ -94,7 +94,7 @@ def main():
         print(f"{region}: done")
     df = pd.concat(frames, ignore_index=True)
     df.to_parquet(args.out, index=False)
-    print(f"wrote {args.out}: {len(df):,} rows, {df['datetime_utc'].min()} to {df['datetime_utc'].max()}")
+    print(f"wrote {args.out}: {len(df):,} rows, {df['time'].min()} to {df['time'].max()}")
 
 
 if __name__ == "__main__":
