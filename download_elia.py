@@ -2,9 +2,10 @@
 Download Elia dataset ods032 (photovoltaic power production estimation and
 forecast on the Belgian grid) and save it as a parquet file.
 
-Usage:  python download_elia.py                          (full history, about 150 MB)
-        python download_elia.py --start 2023-01-01       (from a given date)
-        python download_elia.py --start 2026-01-01 --out ods032_2026.parquet
+Usage:  python download_elia.py                          (full history from October 2020, about 150 MB)
+                                                         This is what the project uses. The notebooks
+                                                         keep January 2021 onward.
+        python download_elia.py --start 2026-01-01 --out sample.parquet     (optional: a smaller extract)
 
 Needs: requests
 Source: Elia Open Data, https://opendata.elia.be/explore/dataset/ods032/information/

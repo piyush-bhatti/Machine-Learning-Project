@@ -2,8 +2,9 @@
 Download archived weather forecasts for the Belgian provinces from Open-Meteo
 and save them as one parquet file.
 
-Usage:  python download_weather.py                     (writes weather_belgium.parquet)
-        python download_weather.py --start 2022-01-01 --end 2026-10-25
+Usage:  python download_weather.py                     (January 2021 to 25 October 2026, writes weather_belgium.parquet)
+                                                       This is what the project uses.
+        python download_weather.py --start 2025-01-01 --end 2025-12-31 --out sample.parquet    (optional: other dates)
 
 Needs: pandas, pyarrow, requests
 Source: Open-Meteo Historical Forecast API (CC BY 4.0, free for non-commercial use)
