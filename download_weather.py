@@ -7,7 +7,7 @@ Usage:  python download_weather.py                     (January 2021 to 25 Octob
         python download_weather.py --start 2025-01-01 --end 2025-12-31 --out sample.parquet    (optional: other dates)
 
 Needs: pandas, pyarrow, requests
-Source: Open-Meteo Historical Forecast API (CC BY 4.0, free for non-commercial use)
+Source: Open-Meteo Historical Forecast API, ECMWF IFS model (CC BY 4.0, free for non-commercial use)
         https://open-meteo.com/en/docs/historical-forecast-api
 """
 import argparse
@@ -17,6 +17,11 @@ import pandas as pd
 import requests
 
 URL = "https://historical-forecast-api.open-meteo.com/v1/forecast"
+
+# One named weather model for the whole period. Without this, Open-Meteo picks its "best match",
+# which was ECMWF IFS until mid 2024 and the Dutch KNMI model afterwards, so the data changed character.
+# ECMWF IFS covers January 2021 to today for Belgium.
+MODEL = "ecmwf_ifs"
 
 # One point per Elia area: approximate centre of each province (latitude, longitude)
 POINTS = {
@@ -56,7 +61,7 @@ VARIABLES = [   # Open-Meteo hourly variables. Column names in the parquet file 
 def fetch(region, lat, lon, start, end):
     params = {
         "latitude": lat, "longitude": lon, "start_date": start, "end_date": end,
-        "hourly": ",".join(VARIABLES), "timezone": "UTC",
+        "hourly": ",".join(VARIABLES), "models": MODEL, "timezone": "UTC",
     }
     r = None
     for attempt in range(8):                 # retry on dropped connections and rate limits
