@@ -31,12 +31,13 @@ pip install -r requirements.txt
 | 4 | `explore_weather_dayahead.ipynb` | Visual exploration and quality checks of the day-ahead weather file for Antwerp, and a comparison with the older weather file | in the notebook |
 | | `explore_weather.ipynb` | The same exploration for the older weather file, kept for reference | in the notebook |
 | 5 | `01_prepare_data.ipynb` | Cleans Elia and the day-ahead weather, joins them, builds the target, flags daylight and the train/test split. Keeps every area in the weather file | `model_table.parquet` |
+| | `explore_model_table.ipynb` | Explores the table built in step 5: the target, how the weather forecast relates to output, the benchmark scores on the training period, and training against test. Optional | in the notebook |
 
 **Two weather files.** `weather_belgium.parquet` is close to the weather that actually happened, because it is built from the first few hours of every forecast. A trader deciding at 11:00 for the next day does not have that. `weather_belgium_dayahead.parquet` holds the forecast as it stood the morning before, which is what the trader really sees, but it only exists from March 2024. The model is therefore trained and tested on the day-ahead file: `01_prepare_data.ipynb` builds `model_table.parquet` from it. The older file is kept only to measure how much accuracy is lost a day ahead.
 
 Steps 3 and 4 are exploration and can be skipped when rerunning. Step 5 is the start of the modelling pipeline: every later notebook reads `model_table.parquet` (also in the repository), not the raw files.
 
-`analyse_solar_weather.ipynb` is an earlier exploratory analysis of weather against output for Antwerp, kept for reference.
+`analyse_solar_weather.ipynb` is an earlier exploratory analysis of weather against output for Antwerp. It uses the older weather file, so its numbers no longer describe the model table: `explore_model_table.ipynb` replaces it. It is kept for reference.
 
 Modelling notebooks (`02_...`, `03_...`) will be added here as they are built.
 
