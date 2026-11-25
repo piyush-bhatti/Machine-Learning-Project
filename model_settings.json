@@ -1,0 +1,80 @@
+{
+  "province": "Antwerp",
+  "model": "RandomForestRegressor",
+  "params": {
+    "n_estimators": 300,
+    "max_features": 0.3333333333333333,
+    "min_samples_leaf": 20,
+    "random_state": 0
+  },
+  "features": [
+    "shortwave_radiation",
+    "direct_radiation",
+    "diffuse_radiation",
+    "direct_normal_irradiance",
+    "cloud_cover",
+    "cloud_cover_low",
+    "cloud_cover_mid",
+    "cloud_cover_high",
+    "temperature_2m",
+    "dew_point_2m",
+    "relative_humidity_2m",
+    "surface_pressure",
+    "precipitation",
+    "wind_speed_10m",
+    "wind_gusts_10m",
+    "solar_elevation",
+    "solar_azimuth",
+    "clearsky_ghi",
+    "clearsky_dni",
+    "clearsky_dhi",
+    "clearsky_index",
+    "diffuse_fraction",
+    "hour_sin",
+    "hour_cos",
+    "wind_dir_sin",
+    "wind_dir_cos"
+  ],
+  "trained_on": "daylight hours of the training period",
+  "validation": {
+    "folds": [
+      {
+        "fold": 1,
+        "start": "2024-10-26",
+        "end": "2025-01-26"
+      },
+      {
+        "fold": 2,
+        "start": "2025-01-26",
+        "end": "2025-04-26"
+      },
+      {
+        "fold": 3,
+        "start": "2025-04-26",
+        "end": "2025-07-26"
+      },
+      {
+        "fold": 4,
+        "start": "2025-07-26",
+        "end": "2025-10-26"
+      }
+    ],
+    "scores": {
+      "persistence": {
+        "MAE": 7.511,
+        "RMSE": 11.916,
+        "Bias": 0.059
+      },
+      "elia": {
+        "MAE": 3.571,
+        "RMSE": 5.534,
+        "Bias": 0.871
+      },
+      "rf": {
+        "MAE": 4.519,
+        "RMSE": 6.808,
+        "Bias": 1.384
+      }
+    }
+  }
+}

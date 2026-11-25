@@ -15,3 +15,11 @@ venv/
 # macOS and editors
 .DS_Store
 .vscode/
+
+# TIGGE: test downloads, and never commit an access key
+tigge_test_*.grib
+*.grib.idx
+.cdsapirc
+
+# TIGGE raw monthly files: large, rebuilt by download_weather_tigge.py
+tigge_grib/

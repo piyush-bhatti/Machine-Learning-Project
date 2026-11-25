@@ -6,7 +6,7 @@ Group project for Introduction to Machine Learning, MSc in Financial Engineering
 
 **Working area: Antwerp.** The team is currently working on the province of Antwerp only. Every notebook has a `PROVINCE = "Antwerp"` setting near the top and runs its analysis on that area. The Elia file and the older weather file hold all eleven areas. The day-ahead weather file and `model_table.parquet` hold Antwerp only for now: to work on another area, download its day-ahead weather first (`python download_weather_dayahead.py --regions all`) and rerun `01_prepare_data.ipynb`.
 
-**Benchmarks.** A persistence forecast (same hour yesterday) and the grid operator's own day-ahead forecast (Elia).
+**Benchmarks.** A persistence forecast (same hour two days before delivery, the last day fully observed when the forecast is made at 11:00) and the grid operator's own day-ahead forecast (Elia).
 
 **Team.** Charles Perret, Hemangini Jena, Kshitij Kochar, Piyush Bhatti, Sharmistha Mookerjee.
 
@@ -32,6 +32,8 @@ pip install -r requirements.txt
 | | `explore_weather.ipynb` | The same exploration for the older weather file, kept for reference | in the notebook |
 | 5 | `01_prepare_data.ipynb` | Cleans Elia and the day-ahead weather, joins them, builds the target, flags daylight and the train/test split. Keeps every area in the weather file | `model_table.parquet` |
 | | `explore_model_table.ipynb` | Explores the table built in step 5: the target, how the weather forecast relates to output, the benchmark scores on the training period, and training against test. Optional | in the notebook |
+| 6 | `02_features.ipynb` | Adds the engineered inputs for the working area: sun position, clear-sky irradiance, clear-sky index, calendar and wind direction cycles | `features_table.parquet`, `features.json` |
+| 7 | `03_models.ipynb` | Scores the two benchmarks, then tunes and scores a random forest, on time-ordered validation folds inside the training period. The test period is not opened | `model_settings.json`, `cv_predictions.parquet` |
 
 **Two weather files.** `weather_belgium.parquet` is close to the weather that actually happened, because it is built from the first few hours of every forecast. A trader deciding at 11:00 for the next day does not have that. `weather_belgium_dayahead.parquet` holds the forecast as it stood the morning before, which is what the trader really sees, but it only exists from March 2024. The model is therefore trained and tested on the day-ahead file: `01_prepare_data.ipynb` builds `model_table.parquet` from it. The older file is kept only to measure how much accuracy is lost a day ahead.
 
@@ -39,7 +41,7 @@ Steps 3 and 4 are exploration and can be skipped when rerunning. Step 5 is the s
 
 `analyse_solar_weather.ipynb` is an earlier exploratory analysis of weather against output for Antwerp. It uses the older weather file, so its numbers no longer describe the model table: `explore_model_table.ipynb` replaces it. It is kept for reference.
 
-Modelling notebooks (`02_...`, `03_...`) will be added here as they are built.
+Further models and the final evaluation on the test period will be added here as they are built.
 
 ## Data
 

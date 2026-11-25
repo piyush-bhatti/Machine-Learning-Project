@@ -5,3 +5,7 @@ matplotlib>=3.7
 requests>=2.31
 jupyter
 ipykernel
+cdsapi
+eccodes
+scikit-learn>=1.4
+pvlib>=0.11
