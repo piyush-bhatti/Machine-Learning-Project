@@ -34,6 +34,7 @@ pip install -r requirements.txt
 | | `explore_model_table.ipynb` | Explores the table built in step 5: the target, how the weather forecast relates to output, the benchmark scores on the training period, and training against test. Optional | in the notebook |
 | 6 | `02_features.ipynb` | Adds the engineered inputs for the working area: sun position, clear-sky irradiance, clear-sky index, calendar and wind direction cycles | `features_table.parquet`, `features.json` |
 | 7 | `03_models.ipynb` | Scores the two benchmarks, then tunes and scores a random forest, on time-ordered validation folds inside the training period. The test period is not opened | `model_settings.json`, `cv_predictions.parquet` |
+| 8 | `04_evaluation.ipynb` | Opens the test period once: trains the forest with the settings from step 7 on the whole training period, scores it and the two benchmarks on the test year, and converts the errors into mis-sold MWh. Also checks monthly retraining, separately | `test_predictions.parquet`, `test_scores.json`, `report/figures/test_*.png` |
 
 **Two weather files.** `weather_belgium.parquet` is close to the weather that actually happened, because it is built from the first few hours of every forecast. A trader deciding at 11:00 for the next day does not have that. `weather_belgium_dayahead.parquet` holds the forecast as it stood the morning before, which is what the trader really sees, but it only exists from March 2024. The model is therefore trained and tested on the day-ahead file: `01_prepare_data.ipynb` builds `model_table.parquet` from it. The older file is kept only to measure how much accuracy is lost a day ahead.
 
@@ -41,7 +42,7 @@ Steps 3 and 4 are exploration and can be skipped when rerunning. Step 5 is the s
 
 `analyse_solar_weather.ipynb` is an earlier exploratory analysis of weather against output for Antwerp. It uses the older weather file, so its numbers no longer describe the model table: `explore_model_table.ipynb` replaces it. It is kept for reference.
 
-Further models and the final evaluation on the test period will be added here as they are built.
+Further models will be added here as they are built. `04_evaluation.ipynb` must stay the last step: nothing may be tuned after it has been run.
 
 ## Data
 
