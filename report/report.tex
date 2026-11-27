@@ -63,7 +63,10 @@ delivery from the ECMWF weather forecast available at that time. A random forest
 19 months of history and validated on four time-ordered blocks covering one full year reduces the
 mean absolute error of the naive persistence rule from 7.5 to 4.5 percentage points of capacity
 ($-40\%$), but remains about 27\% less accurate than the grid operator Elia's own day-ahead forecast
-(3.6 points). \tbd{one sentence with the test-period result.}
+(3.6 points). On the held-out test year (26 October 2025 to 25 October 2026), opened once at the
+end, the ranking is unchanged: the forest's error is 4.0 points, against 8.0 for persistence ($-50\%$)
+and 3.1 for Elia ($+30\%$). For a 100\,MW portfolio, this avoids about 18,800\,MWh of imbalance a year
+compared with the naive rule.
 \end{abstract}
 
 
@@ -440,44 +443,23 @@ Random forest (our model)  & 4.52 & 6.81 & $+1.38$ & $+27\%$ \\
 \end{tabular}
 \end{table}
 
-\begin{table}[ht]
-\centering\small
-\caption{Validation MAE by block (percentage points of capacity).}
-\label{tab:folds}
-\begin{tabular}{@{}l l r r r@{}}
-\toprule
-Block & Period & Persistence & Elia & Random forest \\
-\midrule
-1 & Oct 2024 -- Jan 2025 & 4.8 & 2.7 & 3.6 \\
-2 & Jan 2025 -- Apr 2025 & 8.6 & 4.3 & 5.0 \\
-3 & Apr 2025 -- Jul 2025 & 7.7 & 3.1 & 4.7 \\
-4 & Jul 2025 -- Oct 2025 & 8.2 & 4.0 & 4.5 \\
-\bottomrule
-\end{tabular}
-\end{table}
 
 The random forest reduces the error of the naive rule by 40\% (MAE from 7.51 to 4.52), and by more
 in RMSE (from 11.92 to 6.81), because persistence makes very large errors whenever a sunny day
-follows a cloudy one. It is better than persistence in every block (\cref{tab:folds}). It remains
+follows a cloudy one. It is better than persistence in every block (\cref{fig:byfold} in the appendix). It remains
 about one point of MAE behind Elia in every block; the gap is smallest in the last block (0.5
 points), where the forest has the most history to learn from. Errors in points of capacity are
 naturally larger in sunny months, so blocks should be compared within, not across.
-\Cref{fig:comparison} shows the three forecasts against measured output over the validation year
-and over two weeks of June 2025.
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\linewidth]{forecast_comparison.png}
-\caption{Top: daily average load factor over the validation year. Bottom: hourly forecasts over two
-weeks of June 2025. Grey area: measured.}
-\label{fig:comparison}
-\end{figure}
+\Cref{fig:valcomparison} in the appendix shows the three forecasts against measured output over
+the validation year and over two weeks of June 2025.
 
 \subsection{Test-period results}
 
-\todo{Refit the random forest with the chosen settings on the whole training period (15 March 2024 to
-25 October 2025, daylight hours, 26 inputs), forecast the test period once, and fill
-\cref{tab:test}. Do not change any setting after seeing these numbers.}
+The test year was opened once, in \texttt{04\_evaluation.ipynb}, after every modelling choice had
+been fixed. The forest was trained a single time on all daylight hours of the training period
+(15 March 2024 to 25 October 2025), with the settings and 26 inputs chosen on validation, and
+forecast the whole test year without being updated. Both benchmarks were built exactly as before.
+All 4,685 daylight hours of the test year have the three forecasts.
 
 \begin{table}[ht]
 \centering\small
@@ -488,15 +470,42 @@ percentage points of capacity.}
 \toprule
 Forecast & MAE & RMSE & Bias & MAE vs.\ Elia \\
 \midrule
-Persistence (naive rule)   & \tbd{} & \tbd{} & \tbd{} & \tbd{} \\
-Elia day-ahead forecast    & \tbd{} & \tbd{} & \tbd{} & -- \\
-Random forest (our model)  & \tbd{} & \tbd{} & \tbd{} & \tbd{} \\
+Persistence (naive rule)   & 8.01 & 12.42 & $-0.02$ & $+160\%$ \\
+Elia day-ahead forecast    & \textbf{3.08} & \textbf{4.88} & $-0.17$ & -- \\
+Random forest (our model)  & 4.01 & 6.18 & $-0.46$ & $+30\%$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\tbd{Comment: is the test MAE close to the validation MAE? Any difference before and after the ECMWF
-upgrade of 12 May 2026? Does the ranking of the three forecasts hold?}
+\paragraph{The ranking holds.} The forest halves the error of the naive rule (MAE $-50\%$, RMSE
+$-50\%$) and remains about 30\% behind Elia (\cref{tab:test}). The same ordering holds in each
+quarter of the test year, with the forest between 0.8 and 1.1 points behind Elia
+(\cref{fig:testquarter} in the appendix), and over the whole year (\cref{fig:comparison}).
+
+\paragraph{Validation was honest.} The forest's test MAE (4.01) is not worse than its validation MAE
+(4.52), so the time-ordered validation did not flatter the model and the settings did not overfit
+the validation blocks. The improvement should not be read as the model getting better: Elia's MAE
+fell by the same amount (3.57 to 3.08), while persistence rose (7.51 to 8.01). Errors in the test
+year were easier to avoid for a weather-based forecast, and harder for a rule that copies the past.
+The gap to Elia is the stable quantity: about one point of MAE in both periods.
+
+\paragraph{The ECMWF upgrade did not hurt.} The forest learned how the forecasts of the old ECMWF
+system relate to output. After the upgrade of 12 May 2026 its gap to Elia was 0.84 points, against
+1.03 before, and 1.11 over the same calendar months a year earlier. There is no sign of
+deterioration.
+
+\paragraph{Retraining helps a little.} As a separate check, not used for the headline result, the
+forest was retrained at the start of each test month on everything observed until then, with the
+same settings. Its MAE falls from 4.01 to 3.89: more history helps, but does not close the gap to
+Elia.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.88\linewidth]{test_forecast_comparison.png}
+\caption{Test year. Top: daily average load factor, 26 October 2025 to 25 October 2026. Bottom:
+hourly forecasts over two weeks of June 2026. Grey area: measured.}
+\label{fig:comparison}
+\end{figure}
 
 % =====================================================================
 \section{Results and limits}
@@ -516,7 +525,7 @@ than the group), and importance describes what the model uses, not a causal effe
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.6\linewidth]{permutation_importance.png}
+\includegraphics[width=0.55\linewidth]{permutation_importance.png}
 \caption{Permutation importance on validation block 4: increase in MAE when the input is shuffled.
 Green: engineered features; blue: raw weather forecast.}
 \label{fig:importance}
@@ -528,38 +537,60 @@ weather forecast itself.
 
 \subsection{Where the errors are}
 
-\Cref{fig:hourmonth} shows that errors peak around solar noon, when output is largest, and in the
-spring and late-summer months with the most variable cloud. The forest tracks Elia's error profile
-closely but sits about one point above it through the middle of the day.
+\Cref{fig:hourmonth} shows that, on the test year, errors peak at 13:00--14:00 local time, when
+output is largest. Persistence errs most in the months when sunny and cloudy days alternate
+(February, March, August, September); the forest's error is much flatter across the year, between
+3.3 and 4.6 points. The forest tracks Elia's error profile closely but sits about one point above it
+through the middle of the day, the hours that carry most of the volume. The same pattern appears on
+validation (\cref{fig:valhourmonth} in the appendix).
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.9\linewidth]{mae_by_hour_month.png}
-\caption{Validation MAE by hour of the day (local time) and by month.}
+\includegraphics[width=0.9\linewidth]{test_mae_by_hour_month.png}
+\caption{Test-period MAE by hour of the day (local time) and by month.}
 \label{fig:hourmonth}
 \end{figure}
 
-The forest is also biased upward (+1.4 points on average, against +0.9 for Elia): on sunny days it
-tends to overshoot the measured peak (\cref{fig:comparison}, bottom). A simple bias correction
-estimated on the validation blocks would be a natural next step.
+\paragraph{Bias.} On validation the forest was too high on average (+1.4 points, against +0.9 for
+Elia), overshooting the peak on sunny days. On the test year the sign reversed ($-0.5$ points, against
+$-0.2$ for Elia). The bias is therefore not a fixed flaw that a constant correction would remove: it
+moves from one period to the next, and is small compared with the MAE in both.
 
 \subsection{Value for the client}
 
 For a client with a 100\,MW portfolio, one point of MAE is about 1\,MW mis-sold in every daylight
-hour, or roughly 4,500\,MWh per year at the wrong price. On the validation year:
-\begin{itemize}
-  \item replacing persistence by the forest avoids about $3.0 \times 4{,}500 \approx 13{,}500$\,MWh of
-  imbalance per year per 100\,MW;
-  \item the forest is still about 0.95 points behind Elia, or about 4,300\,MWh per year per 100\,MW.
-\end{itemize}
-\tbd{Update with test-period figures. Optional: convert into euros using Elia's published imbalance
-prices for the test year.}
+hour, or roughly 4,700\,MWh over the 4,685 daylight hours of a year. \Cref{tab:value} gives the
+energy that each forecast would have sold at the wrong time over the test year, for a 100\,MW client
+and for the whole Antwerp solar fleet (about 1,930 to 2,030\,MW, hour by hour).
+
+\begin{table}[ht]
+\centering\small
+\caption{Energy mis-sold over the test year (sum of absolute hourly errors, daylight hours), MWh.}
+\label{tab:value}
+\begin{tabular}{@{}l r r@{}}
+\toprule
+Forecast & 100\,MW client & All of Antwerp \\
+\midrule
+Persistence (naive rule)  & 37,550 & 751,000 \\
+Elia day-ahead forecast   & 14,445 & 289,000 \\
+Random forest (our model) & 18,794 & 376,000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+For a 100\,MW client, replacing the naive rule by the forest avoids about \textbf{18,800\,MWh} of
+imbalance a year, half of the naive rule's total. The forest is still about 4,300\,MWh a year behind
+Elia's free forecast. These are volumes, not euros: the cost depends on the imbalance price in each
+hour, which Elia publishes and which would be the next step to value the product in money.
 
 \subsection{What we cannot claim}
 
 \begin{itemize}
-  \item \textbf{We do not beat Elia} on validation data. The product is a strong improvement on a
-  naive rule built from free public data, not a replacement for the operator's forecast.
+  \item \textbf{We do not beat Elia}, on validation or on test data: the forest is about one point of
+  MAE behind in every quarter. The product is a strong improvement on a naive rule built from free
+  public data, not a replacement for the operator's forecast.
+  \item \textbf{One test year.} The test covers a single year, so the 30\% gap to Elia and the 50\%
+  gain over persistence come with sampling uncertainty; the validation year gave 27\% and 40\%.
   \item \textbf{One province.} Results are for Antwerp only; other provinces need their day-ahead
   weather downloaded and the pipeline rerun.
   \item \textbf{Short history.} True day-before weather forecasts exist only from March 2024, so the
@@ -576,6 +607,7 @@ prices for the test year.}
 \subsection{What we would do with more time}
 
 \begin{itemize}
+  \item Retrain the forest every month in production (MAE 3.89 instead of 4.01 on the test year).
   \item Extend the history back to 2020 with ECMWF's TIGGE archive of issued forecasts (download
   scripts are written; the data come in 6-hour steps).
   \item Try gradient boosting and a combination with Elia's forecast as an input (a separate
@@ -612,6 +644,28 @@ Orange box: chosen combination.}
 \label{fig:week}
 \end{figure}
 
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{forecast_comparison.png}
+\caption{Validation year. Top: daily average load factor, 26 October 2024 to 25 October 2025.
+Bottom: hourly forecasts over two weeks of June 2025. Grey area: measured.}
+\label{fig:valcomparison}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\linewidth]{mae_by_hour_month.png}
+\caption{Validation MAE by hour of the day (local time) and by month.}
+\label{fig:valhourmonth}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{test_mae_by_quarter.png}
+\caption{Test-period MAE by quarter.}
+\label{fig:testquarter}
+\end{figure}
+
 % =====================================================================
 \section{Code and reproducibility}
 % =====================================================================
@@ -624,7 +678,8 @@ The code runs in the order given in \texttt{README.md}:
   \item \texttt{02\_features.ipynb}: engineered features $\rightarrow$ \texttt{features\_table.parquet}.
   \item \texttt{03\_models.ipynb}: benchmarks, tuning and validation of the random forest
   $\rightarrow$ \texttt{model\_settings.json}, \texttt{cv\_predictions.parquet}.
-  \item \todo{\texttt{04\_evaluation.ipynb}: final test-period evaluation.}
+  \item \texttt{04\_evaluation.ipynb}: single evaluation on the test period
+  $\rightarrow$ \texttt{test\_scores.json}, \texttt{test\_predictions.parquet}.
 \end{enumerate}
 Exploration notebooks (\texttt{explore\_*.ipynb}) are optional. Weather data by Open-Meteo.com
 (CC BY 4.0); solar data by Elia Open Data.
@@ -665,8 +720,8 @@ outputs were checked.}
 \toprule
 Tool & Task & Main prompts & How outputs were checked \\
 \midrule
-Claude (Anthropic) & First draft of the structure and text of this report from the repository's notebooks and README &
-``Go through the repository, tell me what has been completed'', ``Draft the report.tex'' &
+Claude (Anthropic) & First draft of the structure and text of this report from the repository's notebooks and README; code of \texttt{04\_evaluation.ipynb} &
+``Go through the repository, tell me what has been completed'', ``Draft the report.tex'', ``Add the code for the test period results'' &
 Every figure and number checked against the notebook outputs and \texttt{model\_settings.json}; text revised by the team \\
 \todo{tool} & \todo{task} & \todo{prompts} & \todo{checks} \\
 \bottomrule
