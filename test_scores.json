@@ -1,0 +1,68 @@
+{
+  "province": "Antwerp",
+  "test_period": {
+    "start": "2025-10-26",
+    "end": "2026-10-25",
+    "daylight_hours_scored": 4685
+  },
+  "model": {
+    "name": "RandomForestRegressor",
+    "params": {
+      "n_estimators": 300,
+      "max_features": 0.3333333333333333,
+      "min_samples_leaf": 20,
+      "random_state": 0
+    },
+    "n_features": 26,
+    "trained_on": "all daylight hours of the training period, trained once"
+  },
+  "scores": {
+    "persistence": {
+      "MAE": 8.015,
+      "RMSE": 12.423,
+      "Bias": -0.022
+    },
+    "elia": {
+      "MAE": 3.083,
+      "RMSE": 4.876,
+      "Bias": -0.168
+    },
+    "rf": {
+      "MAE": 4.012,
+      "RMSE": 6.176,
+      "Bias": -0.46
+    }
+  },
+  "scores_by_quarter_MAE": {
+    "Oct 2025 to Jan 2026": {
+      "persistence": 5.661,
+      "elia": 2.491,
+      "rf": 3.404
+    },
+    "Jan 2026 to Apr 2026": {
+      "persistence": 9.662,
+      "elia": 3.205,
+      "rf": 4.282
+    },
+    "Apr 2026 to Jul 2026": {
+      "persistence": 6.816,
+      "elia": 3.037,
+      "rf": 3.798
+    },
+    "Jul 2026 to Oct 2026": {
+      "persistence": 9.605,
+      "elia": 3.433,
+      "rf": 4.443
+    }
+  },
+  "rf_retrained_monthly": {
+    "MAE": 3.89,
+    "RMSE": 6.033,
+    "Bias": -0.294
+  },
+  "mis_sold_MWh_per_100MW": {
+    "persistence": 37550,
+    "elia": 14445,
+    "rf": 18794
+  }
+}
